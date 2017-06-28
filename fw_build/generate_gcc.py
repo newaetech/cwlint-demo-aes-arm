@@ -1,3 +1,14 @@
+# NewAE Technology Inc., Copyright (C) 2017.
+#
+# This file demonstrates a simple build script which uses the GCC compiler to build several variants of the same AES library.
+# This script actually writes a simple .bat file (or could be .sh file on Linux) which calls "make" with various command line arguments.
+# 
+# You can inspect this file to ensure it covers the appropriate options. It can then be copied to the simpleserial-aes directory and run from
+# there (which of course could be done via another script instead).
+#
+# Note if a build fails (such as will happen in the STM32F1 without using ROM tables) no .hex is generated, so the "mv" will fail.
+#
+#
 import itertools
 
 platforms = ["CW308_STM32F0", "CW308_STM32F1", "CW308_STM32F2"]
@@ -24,8 +35,3 @@ for platform in platforms:
 
 with open("aes_gcc_build.bat", "w") as f:
     f.write(batch_file)
-        
-
-            
-
-

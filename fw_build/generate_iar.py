@@ -1,8 +1,27 @@
+# NewAE Technology Inc., Copyright (C) 2017.
+#
+# This file demonstrates a simple build script which uses the IAR compiler to build several variants of the same AES library.
+# Due to the IAR build process, we simply modify a project file to adjust settings as required.
+#
+
+#####################################################################################
+#### Adjust settings of the following for your system:
+
+#Location of IarBuild.exe (along with rest of IAR)
+iar_build_exe = "E:/IAR Systems/Embedded Workbench 8.0/common/bin/IarBuild.exe"
+
+#ChipWhisperer directory - required to pull in software files
+#This is written into IAR project file - suggest to keep backslashes here exactly as-is since things are going to be fragile
+rootfwdir = r"C:\chipwhisperer\hardware\victims\firmware\"
+
+#####################################################################################
+#### Start of actual code
 
 from shutil import copyfile
 from subprocess import Popen, PIPE
 import itertools
 
+#Helper function to call process (used for calling IarBuild.exe)
 def get_exitcode_stdout_stderr(args):
     """
     Execute the external command and get its exitcode, stdout and stderr.
@@ -10,21 +29,21 @@ def get_exitcode_stdout_stderr(args):
     proc = Popen(args, stdout=PIPE, stderr=PIPE, shell=True)
     out, err = proc.communicate()
     exitcode = proc.returncode
-    #
     return exitcode, out, err
 
+#We've hacked up a project file to make it into a template, by replacing certain things with variables we will overwrite
 with open("iar/STM32FX.ewp.template", "r") as f:
     template_orig = f.read()
 
-rootfwdir = "C:\\chipwhisperer\\hardware\\victims\\firmware\\"
-
+#These additional options will be combined in various ways. Note these options are actually taken from the
+#GCC build script - they aren't used directly here though, instead they are just used as "flags" to indicate
+#which build options
 opt1 = ["OPT=s", "OPT=0"]
 opt2 = ["", "MBEDTLS_AES_ROM_TABLES=1"]
 
 other_options = [opt1, opt2]
 
-
-#The following settings taken from IAR:
+#The following settings taken from IAR project files created in various options:
 # For optimization level = high, balanced option (turns on most optimizations):
 #  $CC_ALLOW_LIST$ = 11111110
 #  $CC_OPT_LEVEL$ = 3
@@ -34,7 +53,6 @@ other_options = [opt1, opt2]
 #  $CC_ALLOW_LIST$ = 00000000
 #  $CC_OPT_LEVEL$ = 0
 #  $CC_OPT_LEVEL_SLAVE$ = 0
-
 
 for platform in ["stm32f0", "stm32f1", "stm32f2"]:
 
@@ -87,7 +105,7 @@ for platform in ["stm32f0", "stm32f1", "stm32f2"]:
             newfile.write(template)
 
 
-        exitcode, out, err = get_exitcode_stdout_stderr(["E:/IAR Systems/Embedded Workbench 8.0/common/bin/IarBuild.exe", "iar/STM32FAutoBuild.ewp", "-build", "Debug", "-log", "all"])
+        exitcode, out, err = get_exitcode_stdout_stderr([iar_build_exe, "iar/STM32FAutoBuild.ewp", "-build", "Debug", "-log", "all"])
         print out
         print err
         print exitcode
