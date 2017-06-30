@@ -9,8 +9,8 @@
 from subprocess import Popen, PIPE
 
 class STLinkProgrammer(object):
-
-    stexe = r"..\stlink_cli\ST-LINK_CLI.exe"
+    def __init__(self, exe_path=r"..\stlink_cli\ST-LINK_CLI.exe"):
+        self.stexe = exe_path
 
     def get_exitcode_stdout_stderr(self, args):
         """
