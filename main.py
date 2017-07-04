@@ -31,15 +31,17 @@ import time
 import sys
 
 # List of firmware files to analyze.
-# TODO: detect list automatically (maybe mask all STM32F0, for example)
 fw_path = "fw_build/fw"
 fw_fnames = [
-    "GCC_AES_CW308_STM32F2_CRYPTO_TARGET=MBEDTLS_OPT=0_.hex",
+    fw for fw in os.listdir(fw_path) if 'STM32F0' in fw
 ]
+#fw_fnames = [
+#    "GCC_AES_CW308_STM32F2_CRYPTO_TARGET=MBEDTLS_OPT=0_.hex",
+#]
 
 # SC-Lint config file to use
 # TODO: use full AES test or TVLA
-sclint_config = "C:/Users/greg/Documents/autoanalysis/restapi/config/aes128_inoutsbox.cfg"
+sclint_config = "C:/Users/greg/Documents/autoanalysis/restapi/config/aes128_simple.cfg"
 
 # Path to SC-Lint client
 sclint_path = "../autoanalysis/restapi/client/client.py"
@@ -49,6 +51,9 @@ sclint_server = "http://127.0.0.1:5000"
 
 # CW project path
 cwp_path = "output/cwprojects"
+
+# Number of traces per firmware
+num_traces = 2000
 
 # Report path
 report_path = "output/reports"
@@ -88,6 +93,7 @@ def setup_chipwhisperer(api):
     api.setParameter(['Generic Settings', 'Trace Format', 'ChipWhisperer/Native'])
     api.setParameter(['Simple Serial', 'Connection', 'NewAE USB (CWLite/CW1200)'])
     api.setParameter(['ChipWhisperer/OpenADC', 'Connection', 'NewAE USB (CWLite/CW1200)'])
+    api.setParameter(['Generic Settings', 'Acquisition Settings', 'Key/Text Pattern', 'CRI T-Test'])
             
     api.connect()
     
@@ -100,7 +106,7 @@ def setup_chipwhisperer(api):
                   ['OpenADC', 'Clock Setup', 'ADC Clock', 'Source', 'CLKGEN x4 via DCM'],
                   ['OpenADC', 'Trigger Setup', 'Total Samples', 10000],
                   ['OpenADC', 'Trigger Setup', 'Offset', 0],
-                  ['OpenADC', 'Gain Setting', 'Setting', 45],
+                  ['OpenADC', 'Gain Setting', 'Setting', 50],
                   ['OpenADC', 'Trigger Setup', 'Mode', 'rising edge'],
                   ['OpenADC', 'Clock Setup', 'ADC Clock', 'Reset ADC DCM', None],
                   ]
@@ -129,9 +135,10 @@ def capture_project(api, fw_fname, cwp_fname):
     if trig_len < 1000:
         raise IOError("ERROR: Trigger appears to have failed (len = %d)"%trig_len)
     api.setParameter(['OpenADC', 'Trigger Setup', 'Total Samples', trig_len])
-    api.setParameter(['Generic Settings', 'Acquisition Settings', 'Number of Traces', 1000])
+    api.setParameter(['Generic Settings', 'Acquisition Settings', 'Number of Traces', num_traces])
     
     # Record traces
+    api.newProject()
     api.saveProject(cwp_fname)
     api.captureM()
     api.saveProject(cwp_fname)
