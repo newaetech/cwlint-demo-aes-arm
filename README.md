@@ -1,5 +1,29 @@
-# Side-Channel Lint Detection on mbed TLS Library #
+# Side-Channel Lint Demos #
 
+The following codebase shows several demos of the SC-Lint tool. This tool is designed to make it easier for finding cryptographic leakage on embedded systems, be it a hardware or software solution. We have currently targeted implementations of AES - these demos all use AES-128 ECB, but other lengths and modes can be selected (or added if not supported yet).
+
+This tool has many use-cases, but the most powerful is to work as a "lint" style tool to catch leakage accidentally introduced in software or hardware implementations of cryptography. This can be setup to automatically run a given library across a wide variety of hardware targets for example, as leakage can vary widely between different devices. 
+
+### Test Vector Leakage Assessment (TVLA) ###
+
+SC-Lint builds primarily on work done to develop TVLA. The TVLA setup provides a method to find statistical differences in power traces between two "known" conditions. For example this could be used to prove that the power traces look different (with a defined level of statistical significance) when a byte of a secret key is 0x00 compared to 0x1F. This comparison is done using the Welch's t-test (note this can also be converted into a SNR number).
+
+This is a very powerful test as it doesn't rely on us to know how to break the encryption, but instead provides proof that it *might* be breakable.
+
+###### References ######
+
+Goodwill T-Test Paper
+Goodwill T-Test Presentation
+Wikipedia T-Test
+
+### ISO/IEC ###
+
+The ISO/IEC 17825:2016 standard (Testing methods for the mitigation of non-invasive attack classes against cryptographic modules) defines a number of tests performed with TVLA in order to quantify if a given device is breakable or not.
+
+The SC-Lint provides a "ISO/IEC 17825:2016 Mode" that performs a specific subset of tests given in that document. Note a number of additional tests that will help you track down where and why cryptographic leakage is occurring are available too, but these use modified versions of the T-Test. 
+
+
+## Side-Channel Lint Detection on mbed TLS Library ##
 
 This demo is designed to run AES using the mbed TLS library against a number of ARM targets. This demonstrates the power of automated analysis in determining where leakage exists, and why testing against ALL possible variants is useful for detecting leakage that might go unnoticed on specific builds/variants.
 
@@ -11,7 +35,7 @@ These are provided by:
  (b) The ChipWhisperer-Capture software connected to a ChipWhisperer-Lite + UFO Board, run in a basic script.
  (c) The SideChannel-Lint software.
 
-## (a) Build Process ##
+### (a) Build Process ###
 
 The target is the mbed TLS library. The automated test script performs the following actions:
 
@@ -20,7 +44,7 @@ The target is the mbed TLS library. The automated test script performs the follo
    a. Autogenerate makefile to build binary (based on settings below).
    b. Build binary for target device.
    c. Program target device.
-   d. Record power traces while performing AES AES.
+   d. Record power traces while performing AES operation.
 
 A total of 24 variants are possible, with the following combinations:
 
@@ -57,10 +81,12 @@ The system will generate 20 HEX-files as a result of the build process, which ha
 	41,607    IAR_AES_CW308_STM32F2_CRYPTO_TARGET=MBEDTLS_OPT=s_MBEDTLS_AES_ROM_TABLES=1.hex
 
 
-## (b) Physical Setup ##
+### (b) Physical Setup ###
 
 TODO
 
-## (c) Side-Channel Lint Setup ##
+### (c) Side-Channel Lint Setup ###
 
 TODO
+
+# Detection of Leakage on Hardware AES
