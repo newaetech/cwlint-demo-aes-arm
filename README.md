@@ -12,9 +12,11 @@ This is a very powerful test as it doesn't rely on us to know how to break the e
 
 ###### References ######
 
-Goodwill T-Test Paper
-Goodwill T-Test Presentation
-Wikipedia T-Test
+[A testing methodology for side-channel resistance validation: Paper](http://csrc.nist.gov/news_events/non-invasive-attack-testing-workshop/papers/08_Goodwill.pdf)
+
+[Is your design leaking keys? Efficient testing for sidechannel leakage: Presentation](https://www.rsaconference.com/writable/presentations/file_upload/asec-r35b.pdf)
+
+[Welch's T-Test](https://en.wikipedia.org/wiki/Welch%27s_t-test)
 
 ### ISO/IEC ###
 
