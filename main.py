@@ -32,28 +32,49 @@ import sys
 
 # List of firmware files to analyze.
 fw_path = "fw_build/fw"
-fw_fnames = [
-    fw for fw in os.listdir(fw_path) if 'STM32F0' in fw
-]
 #fw_fnames = [
-#    "GCC_AES_CW308_STM32F2_CRYPTO_TARGET=MBEDTLS_OPT=0_.hex",
+#    fw for fw in os.listdir(fw_path) if 'STM32F0' in fw
 #]
 
+fw_fnames = [
+    "GCC_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=0_.hex",
+    "GCC_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=0_MBEDTLS_AES_ROM_TABLES=1.hex",
+    "GCC_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=s_.hex",
+    "GCC_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=s_MBEDTLS_AES_ROM_TABLES=1.hex",
+    "IAR_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=0_.hex",
+    "IAR_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=0_MBEDTLS_AES_ROM_TABLES=1.hex",
+    "IAR_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=s_.hex",
+    "IAR_AES_CW308_STM32F0_CRYPTO_TARGET=MBEDTLS_OPT=s_MBEDTLS_AES_ROM_TABLES=1.hex",
+]
+
+proj_titles = [
+    "STM32F0: GCC, OPT=0, RAM Tables",
+    "STM32F0: GCC, OPT=0, ROM Tables",
+    "STM32F0: GCC, OPT=s, RAM Tables",
+    "STM32F0: GCC, OPT=s, ROM Tables",
+    "STM32F0: IAR, OPT=0, RAM Tables",
+    "STM32F0: IAR, OPT=0, ROM Tables",
+    "STM32F0: IAR, OPT=s, RAM Tables",
+    "STM32F0: IAR, OPT=s, ROM Tables"
+]
+
 # SC-Lint config file to use
-# TODO: use full AES test or TVLA
+# Note: ISO config file doesn't include test 0 because that only works with 
+# ISO capture campaign (fixed/rand plaintexts interleaved)
+#sclint_config = "C:/Users/greg/Documents/autoanalysis/restapi/config/aes128_iso.cfg"
 sclint_config = "C:/Users/greg/Documents/autoanalysis/restapi/config/aes128_simple.cfg"
 
 # Path to SC-Lint client
 sclint_path = "../autoanalysis/restapi/client/client.py"
 
-# SC-Lint server location
-sclint_server = "http://127.0.0.1:5000"
+# SC-Lint client ini file
+sclint_ini = "C:/Users/greg/Documents/autoanalysis/restapi/client/client.ini"
 
 # CW project path
 cwp_path = "output/cwprojects"
 
 # Number of traces per firmware
-num_traces = 2000
+num_traces = 1000
 
 # Report path
 report_path = "output/reports"
@@ -93,7 +114,21 @@ def setup_chipwhisperer(api):
     api.setParameter(['Generic Settings', 'Trace Format', 'ChipWhisperer/Native'])
     api.setParameter(['Simple Serial', 'Connection', 'NewAE USB (CWLite/CW1200)'])
     api.setParameter(['ChipWhisperer/OpenADC', 'Connection', 'NewAE USB (CWLite/CW1200)'])
-    api.setParameter(['Generic Settings', 'Acquisition Settings', 'Key/Text Pattern', 'CRI T-Test'])
+    
+    # Plaintext/key settings:
+    # Random pt, random key
+    #api.setParameter(['Generic Settings', 'Acquisition Settings', 'Key/Text Pattern', 'Basic'])
+    #api.setParameter(['Generic Settings', 'Basic', 'Key', 'Random'])
+    #api.setParameter(['Generic Settings', 'Basic', 'Plaintext', 'Random'])
+    
+    # Random pt, ISO t-test key
+    api.setParameter(['Generic Settings', 'Acquisition Settings', 'Key/Text Pattern', 'Basic'])
+    api.setParameter(['Generic Settings', 'Basic', 'Key', 'Fixed'])
+    api.setParameter(['Generic Settings', 'Basic', 'Fixed Encryption Key', 'DA 39 A3 EE 5E 6B 4B 0D 32 55 BF EF 95 60 18 95'])
+    api.setParameter(['Generic Settings', 'Basic', 'Plaintext', 'Random'])
+    
+    # ISO spec key, interleaved random/ISO-fixed plaintexts
+    #api.setParameter(['Generic Settings', 'Acquisition Settings', 'Key/Text Pattern', 'TVLA Rand vs Fixed'])
             
     api.connect()
     
@@ -155,7 +190,10 @@ if __name__ == "__main__":
     # Set up the ChipWhisperer
     setup_chipwhisperer(api)
 
-    for fw_fname in fw_fnames:
+    for i in range(len(fw_fnames)):
+        fw_fname = fw_fnames[i]
+        proj_title = proj_titles[i]
+        
         print "Testing firmware file %s..." % fw_fname
         
         # Run capture script
@@ -178,7 +216,8 @@ if __name__ == "__main__":
             "run", 
             "--cwproject=%s" % os.path.abspath(cwp_fname), 
             "--config=%s" % sclint_config,
-            sclint_server
+            "--title=%s" % proj_title,
+            sclint_ini
         ])
         
         # Get project URI from run output
@@ -188,6 +227,7 @@ if __name__ == "__main__":
             if goal_str in line:
                 print line
                 project_uri = line.split(goal_str)[1].strip()
+                project_pid = project_uri.split('/')[-1]
                 break
         
         # Wait for analysis to finish
@@ -198,7 +238,8 @@ if __name__ == "__main__":
             sclint_path,
             "status",
             "--block",
-            project_uri
+            sclint_ini,
+            project_pid
         ])
         
         # Generate report
@@ -211,7 +252,8 @@ if __name__ == "__main__":
             "result", 
             "--html", 
             os.path.abspath(report_fname), 
-            project_uri
+            sclint_ini,
+            project_pid
         ])
         
         print "Finished firmware file %s" % fw_fname
