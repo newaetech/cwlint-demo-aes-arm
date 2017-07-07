@@ -43,10 +43,10 @@ The target is the mbed TLS library. The automated test script performs the follo
 
 1. Perform "git pull" to get latest code from public repository.
 2. For each variant:
-   a. Autogenerate makefile to build binary (based on settings below).
-   b. Build binary for target device.
-   c. Program target device.
-   d. Record power traces while performing AES operation.
+   * Autogenerate makefile to build binary (based on settings below).   
+   * Build binary for target device.   
+   * Program target device.   
+   * Record power traces while performing AES operation.
 
 A total of 24 variants are possible, with the following combinations:
 
