@@ -1,6 +1,6 @@
-# ChipWhisperer Lint Demos #
+# ChipWhisperer-Lint Multi-Build Demo #
 
-The following codebase shows several demos of the CW-Lint tool (see http://github.com/newaetech/ChipWhisperer-Lint). This tool is designed to make it easier for finding cryptographic leakage on embedded systems, be it a hardware or software solution. We have currently targeted implementations of AES - these demos all use AES-128 ECB, but other lengths and modes can be selected (or added if not supported yet).
+The following codebase shows a demo of the CW-Lint tool (see http://github.com/newaetech/ChipWhisperer-Lint). This tool is designed to make it easier for finding cryptographic leakage on embedded systems, be it a hardware or software solution. We have currently targeted implementations of AES - these demos all use AES-128 ECB, but other lengths and modes can be selected (or added if not supported yet).
 
 This tool has many use-cases, but the most powerful is to work as a "lint" style tool to catch leakage accidentally introduced in software or hardware implementations of cryptography. This can be setup to automatically run a given library across a wide variety of hardware targets for example, as leakage can vary widely between different devices. The setup is roughly like this:
 
@@ -88,6 +88,12 @@ The system will generate 20 HEX-files as a result of the build process, which ha
 ### (b) Physical Setup ###
 
 This requires a ChipWhisperer for performing power analysis, and a suitable target board. This is designed to run on a CW308 UFO board with the STM32Fx targets. Switching between STM32F devices does require physically switching the target boards (or having multiple ChipWhisperer-Capture + target setups).
+
+### (c) ChipWhisperer-Lin ###
+
+Running the output requires copying the project files to the ChipWhisperer-Lint server. They should then be run with the appropriate configuration file.
+
+A summary download will get information across all the projects, providing the summary of all project tests.
 
 ## Example Output ##
 See [doc/all-boards-output-example.html](https://htmlpreview.github.io/?https://github.com/newaetech/cwlint-demo-aes-arm/blob/master/doc/all-boards-output-example.html) for the result of running the tool. Here's a little sneak peak:
