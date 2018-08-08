@@ -90,5 +90,5 @@ The system will generate 20 HEX-files as a result of the build process, which ha
 This requires a ChipWhisperer for performing power analysis, and a suitable target board. This is designed to run on a CW308 UFO board with the STM32Fx targets. Switching between STM32F devices does require physically switching the target boards (or having multiple ChipWhisperer-Capture + target setups).
 
 ## Example Output ##
-See [doc/all-boards-output-example.html](doc/all-boards-output-example.html) for the result of running the tool. Here's a little sneak peak:
+See [doc/all-boards-output-example.html](https://htmlpreview.github.io/?https://github.com/newaetech/cwlint-demo-aes-arm/blob/master/doc/all-boards-output-example.html) for the result of running the tool. Here's a little sneak peak:
 ![ChipWhisperer-Lint Output Example](/doc/snipper_image.png)
