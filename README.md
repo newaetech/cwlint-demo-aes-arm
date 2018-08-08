@@ -1,8 +1,10 @@
 # ChipWhisperer Lint Demos #
 
-The following codebase shows several demos of the CW-Lint tool. This tool is designed to make it easier for finding cryptographic leakage on embedded systems, be it a hardware or software solution. We have currently targeted implementations of AES - these demos all use AES-128 ECB, but other lengths and modes can be selected (or added if not supported yet).
+The following codebase shows several demos of the CW-Lint tool (see http://github.com/newaetech/ChipWhisperer-Lint). This tool is designed to make it easier for finding cryptographic leakage on embedded systems, be it a hardware or software solution. We have currently targeted implementations of AES - these demos all use AES-128 ECB, but other lengths and modes can be selected (or added if not supported yet).
 
-This tool has many use-cases, but the most powerful is to work as a "lint" style tool to catch leakage accidentally introduced in software or hardware implementations of cryptography. This can be setup to automatically run a given library across a wide variety of hardware targets for example, as leakage can vary widely between different devices. 
+This tool has many use-cases, but the most powerful is to work as a "lint" style tool to catch leakage accidentally introduced in software or hardware implementations of cryptography. This can be setup to automatically run a given library across a wide variety of hardware targets for example, as leakage can vary widely between different devices. The setup is roughly like this:
+
+![ChipWhisperer-Lint Super-Cool Demo Figure](/doc/cwlint_arch.png)
 
 ### Test Vector Leakage Assessment (TVLA) ###
 
@@ -85,10 +87,4 @@ The system will generate 20 HEX-files as a result of the build process, which ha
 
 ### (b) Physical Setup ###
 
-TODO
-
-### (c) ChipWhisperer Lint Setup ###
-
-TODO
-
-# Detection of Leakage on Hardware AES
+This requires a ChipWhisperer for performing power analysis, and a suitable target board. This is designed to run on a CW308 UFO board with the STM32Fx targets. Switching between STM32F devices does require physically switching the target boards (or having multiple ChipWhisperer-Capture + target setups).
